@@ -31,8 +31,16 @@ public class BookEdit
         Console.WriteLine($"Vul een nieuwe genre in voor {book.Genre}");
         string newGenre = Console.ReadLine();
 
+        Console.WriteLine($"Vul een nieuwe auteur ID in voor {book.AuthorId}");
+        int newAuthorId;
+        while (!int.TryParse(Console.ReadLine(), out newAuthorId))
+        {
+            Console.WriteLine("Ongeldig ID, probeer opnieuw:");
+        }
+
         book.Title = newTitle;
         book.Genre = newGenre;
+        book.AuthorId = newAuthorId;
 
         return book;
     }

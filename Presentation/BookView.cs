@@ -23,7 +23,7 @@ public class BookView
             for (int i = currentPage * pageSize; i < Math.Min((currentPage + 1) * pageSize, totalBooks); i++)
             {
                 var book = books[i];
-                Console.WriteLine($"Titel: {book.Title}, Genre: {book.Genre}, Auteur: {book.Author}");
+                Console.WriteLine($"Titel: {book.Title}, Genre: {book.Genre}, Auteur ID: {book.AuthorId}");
             }
 
             if ((currentPage + 1) * pageSize >= totalBooks)

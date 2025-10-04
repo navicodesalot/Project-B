@@ -9,7 +9,7 @@ public static class BooksAccess
 
     public static void Write(BookModel book)
     {
-        string sql = $"INSERT INTO {Table} (title, genre, author) VALUES (@Title, @Genre, @Author)";
+        string sql = $"INSERT INTO {Table} (title, genre, author_id) VALUES (@Title, @Genre, @AuthorId)";
         _connection.Execute(sql, book);
     }
 
@@ -33,7 +33,7 @@ public static class BooksAccess
 
     public static void Update(BookModel book)
     {
-        string sql = $"UPDATE {Table} SET title = @Title, genre = @Genre, author = @Author WHERE id = @Id";
+        string sql = $"UPDATE {Table} SET title = @Title, genre = @Genre, author_id = @AuthorId WHERE id = @Id";
         _connection.Execute(sql, book);
     }
 
