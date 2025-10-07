@@ -9,11 +9,11 @@ public static class BooksAccess
 
     public static void Write(BookModel book)
     {
-        string sql = $"INSERT INTO {Table} (title, genre, author_id) VALUES (@Title, @Genre, @AuthorId)";
+        string sql = $"INSERT INTO {Table} (id, title, genre, author_id) VALUES (@Id, @Title, @Genre, @AuthorId)";
         _connection.Execute(sql, book);
     }
 
-    public static BookModel? GetById(int id)
+    public static BookModel? GetById(string id)
     {
         string sql = $"SELECT * FROM {Table} WHERE id = @Id";
         return _connection.QueryFirstOrDefault<BookModel>(sql, new { Id = id });
@@ -37,7 +37,7 @@ public static class BooksAccess
         _connection.Execute(sql, book);
     }
 
-    public static void Delete(int id)
+    public static void Delete(string id)
     {
         string sql = $"DELETE FROM {Table} WHERE id = @Id";
         _connection.Execute(sql, new { Id = id });

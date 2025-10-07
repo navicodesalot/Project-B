@@ -2,7 +2,6 @@ using System.Security.Cryptography.X509Certificates;
 
 public class BookEdit
 {
-
     private BooksLogic logic = new BooksLogic();
     public void Start()
     {
@@ -44,6 +43,4 @@ public class BookEdit
 
         return book;
     }
-
-    
 }

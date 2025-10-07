@@ -18,7 +18,7 @@ public class BooksLogic
         BooksAccess.Update(book);
     }
 
-    public BookModel GetById(int id)
+    public BookModel GetById(string id)
     {
         return BooksAccess.GetById(id);
     }
@@ -27,5 +27,4 @@ public class BooksLogic
     {
         return BooksAccess.GetAll();
     }
-
 }
