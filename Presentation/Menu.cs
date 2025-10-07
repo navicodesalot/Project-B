@@ -7,9 +7,10 @@ static class Menu
     {
         while (true)
         {
-            Console.WriteLine("Enter 1 to login");
-            Console.WriteLine("Enter 2 to change book details");
-            Console.WriteLine("Enter 3 to view all books"); 
+            Console.WriteLine("Enter 1 om in te loggen");
+            Console.WriteLine("Enter 2 om boek gegevens te wijzigen");
+            Console.WriteLine("Enter 3 om de volledige boekenlijst in te zien");
+            Console.WriteLine("Enter 4 om een nieuw account te registreren.");
 
             string input = Console.ReadLine()!;
             if (input == "1")
@@ -26,9 +27,13 @@ static class Menu
                 BookView view = new BookView();
                 view.ShowAllBooks();
             }
+            else if (input == "4")
+            {
+                UserRegister.Start();
+            }
             else
             {
-                Console.WriteLine("Invalid input");
+                Console.WriteLine("Probeer het opnieuw");
                 return;
             }
         }

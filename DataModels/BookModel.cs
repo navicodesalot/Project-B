@@ -5,9 +5,6 @@
     public string Genre { get; set; }
     public int AuthorId { get; set; }
 
-    // should make dapper not be mean
-    public BookModel() { }
-
     public BookModel(string id, string title, string genre, int authorId)
     {
         Id = id;
@@ -15,4 +12,7 @@
         Genre = genre;
         AuthorId = authorId;
     }
+
+    // dont ask dapper needs it
+    public BookModel() { }
 }
