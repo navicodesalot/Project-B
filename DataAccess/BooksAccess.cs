@@ -15,19 +15,19 @@ public static class BooksAccess
 
     public static BookModel? GetById(string id)
     {
-        string sql = $"SELECT * FROM {Table} WHERE id = @Id";
+        string sql = $"SELECT id, title, genre, author_id AS AuthorId FROM Books WHERE id = @Id";
         return _connection.QueryFirstOrDefault<BookModel>(sql, new { Id = id });
     }
 
     public static BookModel? GetByTitle(string title)
     {
-        string sql = $"SELECT * FROM {Table} WHERE title = @Title";
+        string sql = $"SELECT id, title, genre, author_id AS AuthorId FROM Books WHERE title = @Title";
         return _connection.QueryFirstOrDefault<BookModel>(sql, new { Title = title });
     }
 
     public static List<BookModel> GetAll()
     {
-        string sql = $"SELECT * FROM {Table}";
+        string sql = $"SELECT id, title, genre, author_id AS AuthorId FROM Books";
         return _connection.Query<BookModel>(sql).ToList();
     }
 
