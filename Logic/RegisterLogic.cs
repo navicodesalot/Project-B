@@ -30,7 +30,7 @@ public class RegisterLogic
         else
         {
             return "";
-            // activates the empty check to ask for dob again
+            // activeert de lege check filter om opnieuw dob te vragen
         }
     }
 }

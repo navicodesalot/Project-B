@@ -39,7 +39,7 @@ public static class BooksAccess
     {
         using var connection = new SqliteConnection($"Data Source={GetDatabasePath()}");
         return connection.QueryFirstOrDefault<BookModel>(
-            $"SELECT id, title, genre, author_id AS AuthorId FROM {Table}WHERE id = @ID", new { Id = id });
+            $"SELECT id, title, genre, author_id AS AuthorId FROM {Table} WHERE id = @Id", new { Id = id });
     }
 
     public static BookModel? GetByTitle(string title)

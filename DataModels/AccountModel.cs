@@ -1,4 +1,4 @@
-﻿class AccountModel
+﻿public class AccountModel
 {
     public Int64 Id { get; set; }
     public string Email { get; set; }
@@ -21,6 +21,6 @@
         Fines = fines;
     }
 
-    // this is for dapper it needs it like a boar in valheim needs mushrooms
+    // this is for dapper it needs it
     public AccountModel() { }
 }
