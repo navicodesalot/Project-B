@@ -19,5 +19,7 @@ static class UserLogin
 
         Console.WriteLine($"Welkom terug, {acc.FirstName} {acc.LastName}!");
         Console.WriteLine("Jouw e-mail adres is " + acc.Email);
+
+        UserMenu.Start(acc); // menu voor ingelogde user
     }
 }
