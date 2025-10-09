@@ -8,6 +8,22 @@ public class BooksLogic
         // place holder
     }
 
+    public List<BookDto> SearchBooks(string? title = null, string? author = null, string? isbn = null)
+    {
+        return BooksAccess.SearchBooks(title, author, isbn);
+
+    }
+
+    public List<BookDto> GetBookByGenre(string genre, string sortBy)
+    {
+        return BooksAccess.GetBooksByGenre(genre, sortBy);
+    }
+
+    public List<string> GetAllGernes()
+    {
+        return BooksAccess.GetAllGenres();
+    }
+
     public BookModel GetByTitle(string title)
     {
         return BooksAccess.GetByTitle(title);
@@ -18,7 +34,7 @@ public class BooksLogic
         BooksAccess.Update(book);
     }
 
-    public BookModel GetById(int id)
+    public BookModel GetById(string id)
     {
         return BooksAccess.GetById(id);
     }
@@ -28,4 +44,5 @@ public class BooksLogic
         return BooksAccess.GetAll();
     }
 
-}
+
+} 
