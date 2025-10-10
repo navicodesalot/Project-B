@@ -17,7 +17,12 @@ class AccountsAccess
     {
         // haal account op via email
         string sql = $"SELECT * FROM {Table} WHERE email = @Email";
-        return _connection.QueryFirstOrDefault<AccountModel>(sql, new { Email = email });
+        var acc = _connection.QueryFirstOrDefault<AccountModel>(sql, new { Email = email });
+        if (acc != null)
+        {
+            acc.Reservations = ReservationAccess.GetByUserId((int)acc.Id).Count(r => r.EndDate > DateTime.Now);
+        }
+        return acc;
     }
 
     public void Update(AccountModel account)

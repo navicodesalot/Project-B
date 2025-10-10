@@ -1,10 +1,11 @@
+using Dapper;
+
 public class ReservationLogic
 {
     public bool CanReserve(int userId)
     {
-        // check hoeveel boeken user heeft, max 10
-        List<ReservationModel> reservations = ReservationAccess.GetByUserId(userId);
-        int activeCount = reservations.Count(r => r.EndDate > DateTime.Now);
+        // check of max reserveringen al zijn gedaan
+        int activeCount = ReservationAccess.GetByUserId(userId).Count(r => r.EndDate > DateTime.Now);
         return activeCount < 10;
     }
 
@@ -22,5 +23,186 @@ public class ReservationLogic
         DateTime end = start.AddDays(21); // 3 weken :P
         ReservationModel reservation = new ReservationModel(0, userId, bookId, start, end);
         ReservationAccess.Write(reservation);
+
+        // update reservations teller in account
+        AccountsAccess access = new AccountsAccess();
+        AccountModel? acc = access.GetByEmail("");
+        if (acc != null)
+        {
+            acc.Reservations = ReservationAccess.GetByUserId(userId).Count(r => r.EndDate > DateTime.Now);
+            access.Update(acc);
+        }
+    }
+
+    public string TryReserveBook(int userId, string bookId)
+    {
+        if (string.IsNullOrWhiteSpace(bookId))
+            return "ISBN mag niet leeg zijn.";
+
+        BookModel book = new BooksLogic().GetById(bookId);
+        if (book == null)
+            return "Dit boek bestaat niet.";
+
+        if (!CanReserve(userId))
+            return "Je hebt het max aantal boeken geleend! Breng er een terug om verder te kunnen lenen.";
+
+        var activeReservation = ReservationAccess.GetActiveByBookId(bookId);
+        AuthorsLogic authorsLogic = new AuthorsLogic();
+        string authorName = "Onbekend";
+        if (book != null)
+        {
+            var author = authorsLogic.GetById(book.AuthorId);
+            if (author != null)
+                authorName = author.Name;
+        }
+
+        if (activeReservation != null)
+        {
+            DateTime start = activeReservation.EndDate.AddDays(2); // 2 dagen na terugbrengen
+            DateTime end = start.AddDays(21);
+            ReservationModel reservation = new ReservationModel(0, userId, bookId, start, end);
+            ReservationAccess.Write(reservation);
+
+            return $"Boek gereserveerd voor zodra het beschikbaar is!\nISBN: {bookId}\nTitel: {book.Title}\nAuteur: {authorName}\nStartdatum: {start:dd-MM-yyyy}\nEinddatum: {end:dd-MM-yyyy}";
+        }
+        else
+        {
+            DateTime start = DateTime.Now.AddDays(1);
+            DateTime end = start.AddDays(21);
+            ReservationModel reservation = new ReservationModel(0, userId, bookId, start, end);
+            ReservationAccess.Write(reservation);
+
+            return $"Boek succesvol gereserveerd!\nJe kunt het boek morgen ophalen.\nISBN: {bookId}\nTitel: {book.Title}\nAuteur: {authorName}\nStartdatum: {start:dd-MM-yyyy}\nEinddatum: {end:dd-MM-yyyy}";
+        }
+    }
+
+    public List<(ReservationModel, string, string, string)> GetActiveReservations(int userId)
+    {
+        // haalt alle reserveringen op die nog niet zijn afgelopen
+        // als startdatum in de toekomst is, check of iemand anders het boek nu heeft
+        var reservations = ReservationAccess.GetByUserId(userId)
+            .Where(r => r.EndDate > DateTime.Now)
+            .OrderBy(r => r.StartDate)
+            .ToList();
+
+        var authorsLogic = new AuthorsLogic();
+        var booksLogic = new BooksLogic();
+
+        var result = new List<(ReservationModel, string, string, string)>();
+        foreach (var r in reservations)
+        {
+            var book = booksLogic.GetById(r.BookId);
+            string bookTitle = book != null ? book.Title : "Onbekend";
+            string authorName = "Onbekend";
+            if (book != null)
+            {
+                var author = authorsLogic.GetById(book.AuthorId);
+                if (author != null)
+                    authorName = author.Name;
+            }
+            string status;
+            if (r.StartDate > DateTime.Now)
+            {
+                // check of iemand anders het boek nu heeft
+                var activeReservation = ReservationAccess.GetActiveByBookId(r.BookId);
+                if (activeReservation != null && activeReservation.EndDate > DateTime.Now)
+                {
+                    status = "Wacht op beschikbaarheid";
+                }
+                else
+                {
+                    // check of jouw reservering de eerstvolgende is van ALLE reserveringen voor dit boek
+                    var allReservationsForBook = ReservationAccess.GetByBookId(r.BookId)
+                        .Where(x => x.StartDate > DateTime.Now)
+                        .OrderBy(x => x.StartDate)
+                        .ToList();
+
+                    // als jouw reservering de eerste is in de lijst, dan mag je ophalen
+                    if (allReservationsForBook.Count > 0 && allReservationsForBook[0].Id == r.Id)
+                    {
+                        // boek is teruggebracht en jij bent de volgende, dus je mag ophalen
+                        status = "Klaar om op te halen";
+                    }
+                    else
+                    {
+                        status = "Wacht op beschikbaarheid";
+                    }
+                }
+            }
+            else
+            {
+                // je hebt het boek nu
+                status = "In bezit";
+            }
+            result.Add((r, bookTitle, authorName, status));
+        }
+        return result;
+    }
+
+    public List<(ReservationModel, string, string, string, string)> GetHistory(int userId)
+    {
+        // haalt alle reserveringen op, gesorteerd van nieuw naar oud
+        // als boek niet teruggebracht is, deadline is ???
+        var history = ReservationAccess.GetByUserId(userId)
+            .OrderByDescending(r => r.EndDate)
+            .ToList();
+
+        var authorsLogic = new AuthorsLogic();
+        var booksLogic = new BooksLogic();
+
+        var result = new List<(ReservationModel, string, string, string, string)>();
+        foreach (var r in history)
+        {
+            var book = booksLogic.GetById(r.BookId);
+            string bookTitle = book != null ? book.Title : "Onbekend";
+            string authorName = "Onbekend";
+            if (book != null)
+            {
+                var author = authorsLogic.GetById(book.AuthorId);
+                if (author != null)
+                    authorName = author.Name;
+            }
+            string status;
+            string deadline;
+            if (r.StartDate > DateTime.Now)
+            {
+                status = "Wacht op beschikbaarheid";
+                deadline = r.EndDate.ToString("dd-MM-yyyy");
+            }
+            else if (r.EndDate > DateTime.Now)
+            {
+                status = "In bezit";
+                deadline = "???";
+            }
+            else
+            {
+                status = "Teruggebracht";
+                deadline = r.EndDate.ToString("dd-MM-yyyy");
+            }
+            result.Add((r, bookTitle, authorName, status, deadline));
+        }
+        return result;
+    }
+
+    public string ReturnBook(int userId, string bookId)
+    // ik maak dit nu alvast ff om reservering historie te testen
+    {
+        // zoek de actieve reservering van deze user en dit boek
+        var reservations = ReservationAccess.GetByUserId(userId);
+        var active = reservations.FirstOrDefault(r => r.BookId == bookId && r.EndDate > DateTime.Now);
+
+        if (active == null)
+            return "Je hebt dit boek niet geleend.";
+
+        // update de einddatum naar vandaag
+        active.EndDate = DateTime.Now;
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source=DataSources/project.db");
+        string sql = "UPDATE Reservations SET enddate = @EndDate WHERE id = @Id";
+        connection.Execute(sql, new { EndDate = active.EndDate, Id = active.Id });
+
+        // update de eerstvolgende reservering voor dit boek :D
+        ReservationAccess.UpdateNextReservationStart(bookId, active.EndDate);
+
+        return "Boek succesvol teruggebracht!";
     }
 }

@@ -34,4 +34,27 @@ public static class ReservationAccess
         string sql = $"SELECT * FROM {Table} WHERE bookid = @BookId AND enddate > @Now";
         return connection.QueryFirstOrDefault<ReservationModel>(sql, new { BookId = bookId, Now = DateTime.Now });
     }
+
+    public static void UpdateNextReservationStart(string bookId, DateTime newEndDate)
+    {
+        using var connection = GetConnection();
+        // stel dat een boek vroeg terug is
+        // dan wordt dat geupdate
+        string sql = $"SELECT * FROM Reservations WHERE bookid = @BookId AND startdate > @NewEndDate ORDER BY startdate LIMIT 1";
+        var nextReservation = connection.QueryFirstOrDefault<ReservationModel>(sql, new { BookId = bookId, NewEndDate = DateTime.MinValue });
+        if (nextReservation != null)
+        {
+            DateTime newStart = newEndDate.AddDays(2); // 2 dagen na terugbrengen
+            DateTime newEnd = newStart.AddDays(21);
+            string updateSql = $"UPDATE Reservations SET startdate = @NewStart, enddate = @NewEnd WHERE id = @Id";
+            connection.Execute(updateSql, new { NewStart = newStart, NewEnd = newEnd, Id = nextReservation.Id });
+        }
+    }
+
+    public static List<ReservationModel> GetByBookId(string bookId)
+    {
+        using var connection = GetConnection();
+        string sql = $"SELECT * FROM Reservations WHERE bookid = @BookId";
+        return connection.Query<ReservationModel>(sql, new { BookId = bookId }).ToList();
+    }
 }
