@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 public static class UserRegister
 {
     public static void Start()
@@ -9,12 +11,23 @@ public static class UserRegister
             Console.WriteLine("Registreren:");
 
             string email = "";
-            while (email == "")
+            while (true)
             {
                 Console.Write("E-mail: ");
                 email = Console.ReadLine()!;
-                if (email == "")
-                    Console.WriteLine("E-mail mag niet leg zijn.");
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    Console.WriteLine("E-mail mag niet leeg zijn.");
+                    continue;
+                }
+                // opgezochte regex voor email format
+                var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+                if (!Regex.IsMatch(email, emailPattern))
+                {
+                    Console.WriteLine("E-mail is geen geldig e-mailadres.");
+                    continue;
+                }
+                break;
             }
 
             if (!logic.IsEmailUnique(email))

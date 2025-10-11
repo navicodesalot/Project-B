@@ -38,21 +38,29 @@ public class BookView
                 Console.WriteLine($"ISBN: {book.Id}, Titel: {book.Title}, Genre: {book.Genre}, Auteur ID: {book.AuthorId}");
             }
 
-            if ((currentPage + 1) * pageSize >= totalBooks)
-            {
-                Console.WriteLine("Geen andere boeken.");
-                break;
-            }
+            Console.WriteLine();
+            if (currentPage > 0)
+                Console.WriteLine("Typ 'v' voor vorige pagina");
+            if ((currentPage + 1) * pageSize < totalBooks)
+                Console.WriteLine("Druk op Enter voor de volgende pagina");
+            Console.WriteLine("Typ 'q' om te stoppen met bladeren.");
 
-            Console.WriteLine("Druk op Enter voor de volgende pagina, of typ 'q' om te stoppen met bladeren.");
             string input = Console.ReadLine();
             if (input != null && input.ToLower() == "q")
             {
                 break;
             }
-            else // aka null = geen input = meteen enter WAYOOOO
+            else if (input != null && input.ToLower() == "v" && currentPage > 0)
+            {
+                currentPage--;
+            }
+            else if ((currentPage + 1) * pageSize < totalBooks)
             {
                 currentPage++;
+            }
+            else
+            {
+                break;
             }
         }
     }

@@ -38,13 +38,12 @@ public static class ReservationAccess
     public static void UpdateNextReservationStart(string bookId, DateTime newEndDate)
     {
         using var connection = GetConnection();
-        // stel dat een boek vroeg terug is
-        // dan wordt dat geupdate
+        // pak de eerstvolgende reservering voor dit boek
         string sql = $"SELECT * FROM Reservations WHERE bookid = @BookId AND startdate > @NewEndDate ORDER BY startdate LIMIT 1";
-        var nextReservation = connection.QueryFirstOrDefault<ReservationModel>(sql, new { BookId = bookId, NewEndDate = DateTime.MinValue });
+        var nextReservation = connection.QueryFirstOrDefault<ReservationModel>(sql, new { BookId = bookId, NewEndDate = newEndDate });
         if (nextReservation != null)
         {
-            DateTime newStart = newEndDate.AddDays(2); // 2 dagen na terugbrengen
+            DateTime newStart = newEndDate.AddDays(1); // dag na terugbrengen
             DateTime newEnd = newStart.AddDays(21);
             string updateSql = $"UPDATE Reservations SET startdate = @NewStart, enddate = @NewEnd WHERE id = @Id";
             connection.Execute(updateSql, new { NewStart = newStart, NewEnd = newEnd, Id = nextReservation.Id });

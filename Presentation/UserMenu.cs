@@ -86,7 +86,7 @@ public static class UserMenu
                         Console.WriteLine($"ISBN: {r.BookId}");
                         Console.WriteLine($"Titel: {bookTitle}");
                         Console.WriteLine($"Auteur: {authorName}");
-                        Console.WriteLine($"Geleend: {r.StartDate:dd-MM-yyyy}");
+                        Console.WriteLine($"Datum van lening: {r.StartDate:dd-MM-yyyy}");
                         Console.WriteLine($"Deadline: {r.EndDate:dd-MM-yyyy}");
                         Console.WriteLine($"Status: {status}");
                         Console.WriteLine("-----------------------------");
@@ -129,7 +129,7 @@ public static class UserMenu
                         Console.WriteLine($"ISBN: {r.BookId}");
                         Console.WriteLine($"Titel: {bookTitle}");
                         Console.WriteLine($"Auteur: {authorName}");
-                        Console.WriteLine($"Geleend: {r.StartDate:dd-MM-yyyy}");
+                        Console.WriteLine($"Startdatum van lening: {r.StartDate:dd-MM-yyyy}");
                         Console.WriteLine($"Boek teruggebracht: {deadline}");
                         Console.WriteLine($"Status: {status}");
                         Console.WriteLine("-----------------------------");
