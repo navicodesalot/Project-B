@@ -70,7 +70,8 @@ public class ReservationLogic
         {
             // boek is beschikbaar, reservering start vandaag
             DateTime start = DateTime.Now;
-            DateTime end = start.AddDays(21);
+            DateTime end = start.AddDays(22);
+            // nu 22 dagen, zodat de gebruiker een dag heeft om het boek op te halen
             ReservationModel reservation = new ReservationModel(0, userId, bookId, start, end);
             ReservationAccess.Write(reservation);
 
